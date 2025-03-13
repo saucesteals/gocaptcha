@@ -79,8 +79,11 @@ func (a *AntiCaptcha) SolveRecaptchaV3(ctx context.Context, settings *Settings, 
 		"type":       "RecaptchaV3TaskProxyless",
 		"websiteURL": payload.EndpointUrl,
 		"websiteKey": payload.EndpointKey,
-		"minScore":   payload.MinScore,
 		"pageAction": payload.Action,
+	}
+
+	if payload.MinScore != 0 {
+		task["minScore"] = payload.MinScore
 	}
 
 	result, err := a.solveTask(ctx, settings, task)
@@ -241,6 +244,8 @@ func (a *AntiCaptcha) getTaskResult(ctx context.Context, settings *Settings, tas
 	if err != nil {
 		return "", err
 	}
+
+	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := settings.client.Do(req)
 	if err != nil {
